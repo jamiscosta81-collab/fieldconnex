@@ -158,6 +158,64 @@
   @media (max-width: 540px) { .img-duo { grid-template-columns: 1fr; } }
   .img-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--text2); background: var(--bg3); border: 0.5px solid var(--border); border-radius: 4px; padding: 2px 7px; margin-bottom: 6px; }
   .img-badge::before { content: "📷"; font-size: 10px; }
+
+  /* ═══ BOTÃO DE ATUALIZAÇÃO ═══ */
+  .update-btn {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: 12px; padding: 12px 14px;
+    cursor: pointer; width: 100%;
+    font-family: var(--font); font-size: 13px;
+    color: var(--text); transition: background 0.15s;
+    margin-bottom: 12px;
+  }
+  .update-btn:active { background: var(--surface); }
+  .upd-icon { font-size: 22px; flex-shrink: 0; }
+  .upd-info { flex: 1; text-align: left; }
+  .upd-title { font-weight: 600; margin-bottom: 2px; font-size: 13px; }
+  .upd-sub { font-size: 11px; color: var(--text2); }
+  .upd-badge {
+    font-size: 10px; font-weight: 700;
+    padding: 3px 9px; border-radius: 20px;
+    font-family: var(--mono); flex-shrink: 0;
+  }
+  .upd-blue   { background: var(--blue-bg);  color: var(--blue); }
+  .upd-green  { background: var(--green-bg); color: var(--green); }
+  .upd-amber  { background: var(--amber-bg); color: var(--amber); }
+
+  /* MODAL */
+  .upd-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,0,0,0.75);
+    display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .upd-overlay.open { opacity: 1; pointer-events: all; }
+  .upd-sheet {
+    width: 100%; background: var(--bg2);
+    border-top: 1px solid var(--border2);
+    border-radius: 20px 20px 0 0;
+    padding: 20px 18px 40px;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  .upd-overlay.open .upd-sheet { transform: translateY(0); }
+  .upd-handle {
+    width: 36px; height: 4px; background: var(--border2);
+    border-radius: 2px; margin: 0 auto 18px;
+  }
+  .upd-action {
+    width: 100%; padding: 13px;
+    border: none; border-radius: 12px;
+    font-size: 14px; font-weight: 600;
+    font-family: var(--font); cursor: pointer;
+    margin-top: 8px; transition: opacity 0.15s;
+  }
+  .upd-action:active { opacity: 0.8; }
+  .upd-primary   { background: var(--blue); color: #fff; }
+  .upd-secondary { background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
+
 </style>
 </head>
 <body>
@@ -188,6 +246,17 @@
 
   <!-- ═══ TAB: DISPOSITIVO ═══ -->
   <div id="tab-device" class="content active">
+    
+    <div class="sec mt">Aplicativo</div>
+    <button class="update-btn" onclick="checkUpdate()">
+      <span class="upd-icon">🔄</span>
+      <div class="upd-info">
+        <div class="upd-title">Verificar atualizações</div>
+        <div class="upd-sub" id="upd-sub">Versão v3.0 · Toque para verificar</div>
+      </div>
+      <span class="upd-badge upd-blue" id="upd-badge">v3.0</span>
+    </button>
+
     <div class="sec">Visão geral do DM-AM</div>
     <div class="grid-3">
       <div class="metric"><div class="ml">Segmentos</div><div class="mv">1</div><div class="mn">por vez</div></div>
@@ -1495,6 +1564,78 @@ function filtrarTermos() {
   const aviso = document.getElementById('nenhum-resultado');
   if (aviso) aviso.style.display = visiveis === 0 && q ? '' : 'none';
 }
+
+// ═══ SISTEMA DE ATUALIZAÇÃO ═══
+const APP_VERSION = '3.0';
+
+async function checkUpdate() {
+  const badge = document.getElementById('upd-badge');
+  const sub = document.getElementById('upd-sub');
+
+  badge.className = 'upd-badge upd-blue';
+  badge.textContent = '...';
+  sub.textContent = 'Verificando...';
+
+  try {
+    const res = await fetch('./version.json?t=' + Date.now());
+    const data = await res.json();
+    const latest = data.version;
+    const notes = data.notes || 'Melhorias e correções';
+
+    if (latest !== APP_VERSION) {
+      badge.className = 'upd-badge upd-amber';
+      badge.textContent = 'v' + latest + ' ✨';
+      sub.textContent = 'Nova versão disponível!';
+      document.getElementById('upd-new-ver').textContent = 'v' + latest;
+      document.getElementById('upd-notes').textContent = notes;
+      document.getElementById('upd-overlay').classList.add('open');
+    } else {
+      badge.className = 'upd-badge upd-green';
+      badge.textContent = '✅ v' + APP_VERSION;
+      sub.textContent = 'App atualizado · ' + new Date().toLocaleDateString('pt-BR');
+    }
+  } catch(e) {
+    badge.className = 'upd-badge upd-blue';
+    badge.textContent = 'v' + APP_VERSION;
+    sub.textContent = 'Sem conexão · versão ' + APP_VERSION;
+  }
+}
+
+function closeUpdate() {
+  document.getElementById('upd-overlay').classList.remove('open');
+}
+
+function doUpdate() {
+  closeUpdate();
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (reg) reg.update().then(() => location.reload(true));
+      else location.reload(true);
+    });
+  } else {
+    location.reload(true);
+  }
+}
+
 </script>
+
+<!-- MODAL DE ATUALIZAÇÃO -->
+<div class="upd-overlay" id="upd-overlay">
+  <div class="upd-sheet">
+    <div class="upd-handle"></div>
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-size:42px;margin-bottom:10px">✨</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:6px">Nova versão disponível!</div>
+      <div style="font-size:13px;color:var(--text2)">Versão <strong id="upd-new-ver" style="color:var(--blue)"></strong> está disponível</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:12px;padding:12px 16px;margin-bottom:6px">
+      <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">O que há de novo</div>
+      <div style="font-size:13px;line-height:1.65;color:var(--text)" id="upd-notes"></div>
+    </div>
+    <button class="upd-action upd-primary" onclick="doUpdate()">🔄 Atualizar agora</button>
+    <button class="upd-action upd-secondary" onclick="closeUpdate()">Depois</button>
+  </div>
+</div>
+
 </body>
 </html>
