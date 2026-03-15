@@ -1577,7 +1577,7 @@ async function checkUpdate() {
   sub.textContent = 'Verificando...';
 
   try {
-    const res = await fetch('./version.json?t=' + Date.now());
+    const res = await fetch('https://jamiscosta81-collab.github.io/fieldconnex/vrs.json?t=' + Date.now());
     const data = await res.json();
     const latest = data.version;
     const notes = data.notes || 'Melhorias e correções';
@@ -1597,7 +1597,8 @@ async function checkUpdate() {
   } catch(e) {
     badge.className = 'upd-badge upd-blue';
     badge.textContent = 'v' + APP_VERSION;
-    sub.textContent = 'Sem conexão · versão ' + APP_VERSION;
+    sub.textContent = 'Erro: ' + e.message;
+    console.error('Update check error:', e);
   }
 }
 
