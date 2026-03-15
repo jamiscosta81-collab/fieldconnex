@@ -1,7 +1,7 @@
 {
   "name": "FieldConnex DM-AM",
   "short_name": "FieldConnex",
-  "description": "Guia de diagnostico de campo para o DM-AM - FF H1 e PROFIBUS PA",
+  "description": "Guia de diagnostico de campo DM-AM - FF H1 e PROFIBUS PA",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#1e2428",
@@ -10,13 +10,13 @@
   "lang": "pt-BR",
   "icons": [
     {
-      "src": "https://jamiscosta81-collab.github.io/fieldconnex/icon-192.png",
+      "src": "img192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://jamiscosta81-collab.github.io/fieldconnex/icon-512.png",
+      "src": "img512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
