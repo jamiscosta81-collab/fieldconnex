@@ -40,9 +40,10 @@
   .subtitle { font-size: 12px; color: var(--text2); margin-top: 3px; }
 
   /* TABS */
-  .tabs { display: flex; padding: 0 18px; border-bottom: 1px solid var(--border); background: var(--bg2); overflow-x: auto; scrollbar-width: none; gap: 2px; }
-  .tabs::-webkit-scrollbar { display: none; }
-  .tab { padding: 10px 14px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: none; color: var(--text2); border-bottom: 2px solid transparent; white-space: nowrap; transition: color .15s, border-color .15s; font-family: var(--font); }
+  .tabs { display: flex; padding: 0 12px; border-bottom: 1px solid var(--border); background: var(--bg2); overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--border2) transparent; gap: 0; }
+  .tabs::-webkit-scrollbar { height: 3px; }
+  .tabs::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .tab { padding: 10px 11px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; background: none; color: var(--text2); border-bottom: 2px solid transparent; white-space: nowrap; transition: color .15s, border-color .15s; font-family: var(--font); }
   .tab.active { color: var(--text); border-bottom-color: var(--blue); }
   .tab:hover:not(.active) { color: var(--text); }
 
